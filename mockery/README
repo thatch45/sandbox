@@ -1,0 +1,9 @@
+Mockery is a general tool for generating installed coppies of Arch,
+The idea is like combining the functions of debootstrap and vmbuilder
+or mock and thincrust.
+
+The goal is twofold really, and the two functions are so closely related.
+And Arch is pacage manager autonomous, so you don't need an installer to install it,
+just pacman.
+
+so mockery will make chroots in a "basic" mode, and vm images in an advanced mode.

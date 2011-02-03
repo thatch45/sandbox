@@ -1,0 +1,185 @@
+Howto Build Automatic Failover With Ucarp for MooseFS
+=====================================================
+
+Often criticized as the only serious failing of MooseFS, and the only reason I
+had placed it on the bottom of my initial research list for my latest service
+deployment, MooseFS is lacking a built in failover mechanism.
+
+But the MooseFS developers are highly conscious of this, and in my opinion,
+could be very close to developing a built in failover/clustering mechanism.
+
+The redundancy of the MooseFS chunk design is unparallelled in other production
+open source distributed file systems and the failure recovery of the chunk
+servers is what drew me to MooseFS over the other available options.
+
+But right now, MooseFS only supports a single metadata server, hence the
+problem with failover.
+
+Despite this the MooseFS developers have developed a viable way to distribute
+the metadata to backup machines via a metalogger. This is one of the core
+components of this failover design.
+
+The other component I will be using is Ucarp. Ucarp is a network level ip
+redundancy system with execution hooks which we will be using to patch together
+the failover.
+
+Step One, Set Up the Metaloggers
+--------------------------------
+
+This howto will assume that you already have a MooseFS installation and are
+using the recommended mfsmaster hostname setup.
+
+The first task is to install mfsmetaloggers on a few machines, all that needs
+to be done is to install the mfs-master package for your distribution and ensure
+that the mfsmetalogger service is running.
+
+By default the mfsmetaloggers will discover the master and begin maintaining
+active backups of the metadata.
+
+As of MooseFS 1.6.19 the mfsmetaloggers work flawlessly, and are completely up
+to date on all transactions.
+
+When setting up the metaloggers remember that sending metadata over the network
+in real time can cause load on the network, only maintain a few metaloggers. The
+number of metaloggers you choose to setup should reflect the size of your
+installation.
+
+Step Two, Setup Ucarp
+---------------------
+
+Ucarp operates by creating a secondary ip address for a given interface and
+then communicating via a network heartbeat with other ucarp daemons. When the
+active ip interface goes down the backups come online and execute a startup
+script.
+
+This ucarp setup uses 4 scripts, the first is just a single line command to
+start Ucarp and link into the remaining scripts:
+
+.Ucarp Startup
+[source, bash]
+----
+#!/bin/bash
+
+ucarp -i storage -s eth0 -v 10 -p secret -a 172.16.0.99 -u /usr/share/ucarp/vip-up -d /usr/share/ucarp/vip-down -B -z
+----
+
+You will need to modify this script for your environment, the option after the
+-s flag is the network interface to attach the ucarp ip address, the option
+after the -a flag is to specify what the ip address to use share should be,
+this is the address that the mfsmaster hostname needs to resolve to.
+
+The -u and -d flags need to be followed by the paths to scripts which are used
+to bring the network interface up and down respectively.
+
+Next the vip-up script which is used to initialize the network interface and
+execute the script which prepares the metadata and starts the mfsmaster.
+
+The setup script needs to be executed in the background for reasons which will
+be explained shortly:
+
+.Vip-up script
+[source, bash]
+----
+#!/bin/bash
+exec 2> /dev/null
+
+ip addr add "$2"/16 dev "$1"
+/usr/share/ucarp/setup.sh &
+exit 0
+----
+
+The vip-down script is almost identical but without calling the setup script:
+
+.Vip-diwn script
+[source, bash]
+----
+#! /bin/sh
+exec 2> /dev/null
+
+ip addr add "$2"/16 dev "$1"
+----
+
+Make sure to change the network mask to reflect your own deployment.
+
+The Setup Script
+----------------
+
+In the previous section a setup script was referenced, this script is where the
+real work is, everything before this has been routine ucarp.
+
+In the vip-up script the setup script is called in the background; this is
+because ucarp will hold onto the ip address until the script has exited. This
+is unnecessary if there is only one failover machine, but since a file system is
+a very important thing, it is wise to set up more than one failover interface.
+
+.Setup script
+[source, bash]
+----
+#!/bin/bash
+MFS='/var/lib/mfs'
+sleep 3
+
+if ip a s eth0 | grep 'inet 172.16.0.99'
+then
+    mkdir -p $MFS/{bak,tmp}
+    mv $MFS/changelog.* $MFS/metadata.* $MFS/tmp/
+
+    service mfsmetalogger stop
+    mfsmetarestore -a 
+    
+    if [ -e $MFS/metadata.mfs ]
+    then
+        cp -p $MFS/sessions_ml.mfs $MFS/sessions.mfs
+        service mfsmaster start
+        service mfscgiserv start
+        service mfsmetalogger start
+    else
+        kill $(pidof ucarp)
+    fi
+    tar cvaf $MFS/bak/metabak.$(date +%s).tlz $MFS/tmp/*
+    rm -rf $MFS/tmp
+fi
+----
+
+The script starts by sleeping for 3 seconds, this is just long enough to wait
+for all of the ucarp nodes that started up to finish arguing about who gets to
+hold the ip address and then the script discovers if this is the new master or
+not.
+
+The interface named in the ucarp startup script is checked to see if it was the
+winner, if so first move any possible information out of the way that may be
+from a previous stint as the mfsmaster, this information will prevent the
+mfsmetaresore command from creating the right metadata file.
+
+Since the mfsmaster is down, the mfsmetalogger is not gathering any data, shut
+it down and run mfsmetarestore -a to build the metadata file from the
+metalogger information. There is a chance that the mfsmetaresore will fail, if
+this is the case the metadata file will not be created.  If the metadata file
+was not successfully created the ucarp interface gets killed and another
+failover machine takes over.
+
+Once it has been verified that the fresh metadata is ready, fire up the
+mfsmaster.
+
+Finally, with the new mfsmaster running tar up the metadata that was moved
+before the procedure happened, we don't want to delete metadata unnecessarily.
+
+Conclusion
+----------
+
+Place this setup on all of the machines you want running in your failover
+cluster. Fire it all up and one of the machines will take over. At the best
+of times this failover will take about 7 seconds, at the worst of times it 
+will take 30-40 seconds. While the mfsmaster is down the client mounts will 
+hang on IO operations, but they should all come back to life when the
+failover completes.
+
+I have tested this setup on an Ubuntu install and an ArchLinux install of
+MooseFS, so far the better performance and reliability has been on ArchLinux,
+although the difference has been generally nominal. This setup is distribution
+agnostic and should work on any unix style system that supports ucarp and
+MooseFS.
+
+
+
+-Thomas S Hatch

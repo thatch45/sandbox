@@ -1,0 +1,46 @@
+#!/usr/bin/python2
+
+import yaml
+import quarters
+import os
+import sys
+
+def load_opts(conf='/etc/quarters/quarters.conf'):
+    '''
+    Load the default options, then overwrite from the config file
+    '''
+    opts = {'builders': 4,
+            'aur_wait': 60,
+            'poll_wait': 1,
+            'aur_repo': '/var/lib/quarters/aur-repo',
+            'aur_file': '/etc/quarters/aur-pkgs',
+            'not_dir': '/var/lib/quarters/not'}
+    if os.path.isfile(conf):
+        opts.update(yaml.load(open(conf, 'r')))
+
+    return opts
+
+def verify_env(opts):
+    '''
+    Verify that the directories are in place
+    '''
+    if not opts['aur_repo'].startswith('/'):
+        err = 'The Aur repo must be an absolute path.'
+        sys.stderr.write(err + '\n')
+        exit(1)
+    if not os.path.isdir(opts['aur_repo']):
+        os.makedirs(opts['aur_repo'])
+    if not opts['not_dir'].startswith('/'):
+        err = 'The Aur repo must be an absolute path.'
+        sys.stderr.write(err + '\n')
+        exit(1)
+    if not os.path.isdir(opts['not_dir']):
+        os.makedirs(opts['not_dir'])
+
+def main():
+    opts = load_opts()
+    verify_env(opts)
+    quarters.serve(opts)
+
+if __name__ == '__main__':
+    main()

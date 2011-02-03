@@ -1,0 +1,5 @@
+# A line delimited list of packages to build from the AUR, Package deps will be
+# included.
+puppet
+facter
+varch

@@ -1,0 +1,120 @@
+/* This is the list of distro packages which are
+ * installed on the appliance.
+ *
+ * This file is processed by cpp with one of the
+ * following symbols defined (depending on the distro):
+ *
+ *   REDHAT=1     For Fedora, RHEL, EPEL and workalikes.
+ *   DEBIAN=1     For Debian.
+ *   UBUNTU=1     For Ubuntu.
+ *   ARCHLINUX=1  For Archlinux.
+ */
+
+/* Basically the same with a few minor tweaks. */
+#ifdef UBUNTU
+#define DEBIAN 1
+#endif
+
+#ifdef REDHAT
+  augeas-libs
+  btrfs-progs
+  cryptsetup-luks
+  diffutils
+  e2fsprogs
+  /* e4fsprogs only exists on RHEL 5, will be ignored everywhere else. */
+  e4fsprogs
+  gfs-utils
+  gfs2-utils
+  grub
+  hfsplus-tools
+  iputils
+  kernel
+  MAKEDEV
+  nilfs-utils
+  ntfsprogs
+  ntfs-3g
+  reiserfs-utils
+  libselinux
+  udev
+  util-linux-ng
+  vim-minimal
+  xz
+  zfs-fuse
+#endif /* REDHAT */
+
+#ifdef DEBIAN
+  bsdmainutils
+  btrfs-tools
+  cryptsetup
+  diff
+  e2fsprogs
+  gfs-tools
+  gfs2-tools
+  grub-pc
+  hfsplus
+  iproute
+  libaugeas0
+  linux-image
+  nilfs2-tools
+  ntfs-3g
+  ntfsprogs
+  reiserfsprogs
+  udev
+  util-linux
+  vim-tiny
+  xz-utils
+  zfs-fuse
+#endif /* DEBIAN */
+
+#ifdef ARCHLINUX
+  kernel26
+  vim
+  btrfs-progs-unstable
+  cryptsetup
+  diffutils
+  augeas
+  zfs-fuse
+  hfsprogs
+  e2fsprogs
+  grub
+  iputils
+  nilfs-utils
+  ntfsprogs
+  ntfs-3g
+  reiserfsprogs
+  udev
+  util-linux-ng
+  xz
+#endif /* ARCHLINUX */
+
+bash
+binutils
+coreutils
+cpio
+dosfstools
+file
+findutils
+grep
+gzip
+jfsutils
+lsof
+lvm2
+module-init-tools
+net-tools
+/*
+Enabling this pulls out 140 extra packages
+into the appliance:
+ocfs2-tools
+*/
+parted
+procps
+scrub
+strace
+tar
+#ifndef UBUNTU
+/* on Ubuntu contains a file in /lib64 which conflicts with libc6 that has
+ * /lib64 as a symbolic link
+ */
+xfsprogs
+#endif
+zerofree

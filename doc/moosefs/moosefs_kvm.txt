@@ -1,0 +1,18 @@
+Using KVM in MooseFS with Libvirt
+=================================
+
+The holy grail of virtual machine cloud deployments is reliable, fast and big
+shared network storage. Shared storage is what makes the private cloud world
+go round.
+
+So the question of what shared storage method to use is a serious one. If the
+organization has unlimited IT money and wants to put all of the eggs in one
+basket, choose a large SAN. Otherwise the choice is in the realm of a
+distributed network file system.
+
+The choices are vast, but after considerable investigation, the choice was
+clear, MooseFS.
+
+With MooseFS deploying virtual machines in the cloud has been smooth, and the
+distributed nature of MooseFS has allowed for seemless growth, and in some
+situations, seemless reduction.

@@ -1,0 +1,47 @@
+#!/usr/bin/python
+import mockery
+import optparse
+import sys
+
+def parse():
+    '''
+    Parse the command line arguments
+    '''
+    parser = optparse.OptopnParser()
+    parser.add_option('-H',
+            '--hostname',
+            dest='hostname',
+            default='',
+            help='''The hostname to apply to the install, helpful with virtual
+            machine images''')
+    parser.add_option('-o',
+            '--output',
+            dest='output',
+            default='',
+            help='''The file to save the virtual machine image as, this option
+            infers the creation of a virtual machine image''')
+    parser.add_option('-C',
+            '--chroot-dir',
+            dest='chroot_dir',
+            default='',
+            help='''The directory that the chroot is built under - by default a
+            temp directory will be made''')
+    parser.add_option('-c',
+            '--config',
+            dest='config',
+            default='/etc/mockery/default.conf',
+            help='''The location of the mockery config file to use,
+            default=/etc/mockery/default.conf''')
+
+    options = parser.parse_args()
+
+    opts = {}
+    opts['hostname'] = options.hostname
+    opts['output'] = options.output
+    opts['chroot_dir'] = options.chrrot_dir
+    opts['config'] = options.config
+
+    return opts
+
+if __name__ == '__main__':
+    pass

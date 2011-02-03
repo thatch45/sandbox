@@ -1,0 +1,43 @@
+What does this need to do?
+
+The goals are:
+1. Provide a countinuous build environment for ArchLinux ABS
+2. Create %100 clean chroot builds
+3. Automate repository management
+4. Allow abs and scm repositories to be watched
+
+What needs to be done:
+1. Ramp up makeworld - build multiple packages, but in chroots
+2. Pull from abs, and abs structured scm repos
+3. Build repositories 
+4. Poll multiple sources for changes, abs and scms
+
+Break down the python:
+1. Chroot management - it is all about installing build deps and deps into
+clean chroots - this means we need a module that builds raw chroots and a
+module that populates chroots based on information in the PKGBUILD. This means
+building a dependency tree
+    a. mkchroot.py
+        I. Gives us a vanilla chroot with unique location
+    b. pkgparse.py
+        I. Parses information we care about out of the PKGBUILD
+
+2. A set of modules/classes used to poll the available sources of data. It will
+need to rsync the abs tree, support rsync repos, svn repos, hg repos and git
+repos.
+    a. scm.py
+        I. Interact with a group of scms
+
+
+Instead of a db, which is messy, I want to use a generated datastroe that gets
+created on startup, then a thread queue that processes thread data serially
+
+3. Data and action manager. A module that gets information about the present
+state of the system, and loads it into a python data structure.
+
+4. A thread queue, this needs to take availability calls, a thread says "I am
+open" and a new event is set up based on the available data, when a new event
+needs to happen it is added to the queue.
+
+
+The first thing I need to do is read that scm!
