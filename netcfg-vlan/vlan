@@ -9,8 +9,8 @@ vlan_up() {
         report_fail "Interface $INTERFACE already exists."
         exit 1
     else
-        ip link set $VLAN_RAW_DEV up
-        ip link add link $VLAN_RAW_DEV name $INTERFACE type vlan id $VLAN_ID >/dev/null 2>&1
+        ip link set $VLAN_PHYS_DEV up
+        ip link add link $VLAN_PHYS_DEV name $INTERFACE type vlan id $VLAN_ID >/dev/null 2>&1
     fi
     bring_interface up "$INTERFACE"
     "$CONN_DIR/ethernet" up "$1"
@@ -29,7 +29,12 @@ vlan_down() {
 
 # Returns status of profile - is it still functional?
 vlan_status() {
-    true
+    if [ -e /sys/class/net/$INTERFACE ]; then
+        echo "profile '$PROFILE' active"
+        ip link show $INTERFACE
+    else
+        echo "profile '$PROFILE' inactive"
+    fi
 }
 
 vlan_$1 "$2"
