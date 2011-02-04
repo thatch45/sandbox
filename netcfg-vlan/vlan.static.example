@@ -1,4 +1,4 @@
-INTERFACE="services"
+INTERFACE="eth0.11"
 VLAN_RAW_DEV="eth0"
 VLAN_ID="11"
 CONNECTION="vlan"
