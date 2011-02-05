@@ -29,10 +29,9 @@ vlan_down() {
 
 vlan_status() {
     if [ -e /sys/class/net/$INTERFACE ]; then
-        echo "profile '$PROFILE' active"
-        ip link show $INTERFACE
+        return 0
     else
-        echo "profile '$PROFILE' inactive"
+        return 1
     fi
 }
 
