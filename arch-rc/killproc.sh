@@ -1,16 +1,14 @@
 killproc() {
   PID=$1
   kill $PID
+  KILL=15
+  TIMEOUT=5
   if [ ! -z $2 ]; then
       TIMEOUT=$2
-  else
-      TIMEOUT=300 # 5 minutes
   fi
   if [ ! -z $3 ]; then
       if [ $3 == 1 ]; then
           KILL=9
-      else
-          KILL=15
       fi
   fi
   TIMEOUTS=0
