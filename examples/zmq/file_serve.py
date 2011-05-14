@@ -13,14 +13,16 @@ def server():
     while True:
         msg = sock.recv()
         if not os.path.isfile(msg):
-            sock.send('File Not Found')
+            sock.send('')
             continue
         fn = open(msg, 'rb')
-        stream = fn.read(128)
-        if not stream:
-            sock.send(stream)
+        stream = True
         while stream:
-            sock.send_multipart(stream)
+            stream = fn.read(128)
+            if stream:
+                sock.send(stream, zmq.SNDMORE)
+            else:
+                sock.send(stream)
 
 if __name__ == '__main__':
     server()
