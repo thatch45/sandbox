@@ -25,7 +25,7 @@ def server():
             sock.send('')
             continue
         # Open the file for reading
-        fn = open(msg, 'rb')
+        fn = open(msg['path'], 'rb')
         fn.seek(msg['loc'])
         ret['body'] = fn.read(BUFF)
         ret['loc'] = fn.tell()

@@ -21,9 +21,9 @@ def get_file(path):
 
     while True:
         # send the desired file and the location to the server
-        socket.send_pyobj(path)
+        socket.send_pyobj(msg)
         # Start grabing data
-        data = socket.recv()
+        data = socket.recv_pyobj()
         # Write the chunk to the file
         if data['body']:
             dest.write(data['body'])
