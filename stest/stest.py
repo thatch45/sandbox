@@ -61,6 +61,12 @@ class STest(object):
         msg_bdata = msgpack.packb(self.bdata)
         print 'Big data packed in {0} seconds'.format(time.time() - big_time)
         open('/tmp/msg_big_data', 'w+').write(msg_bdata)
+        comp_time = time.time()
+        msg_cdata_post = msgpack.loads(msg_cdata)
+        print 'Complex data unpacked in {0} seconds'.format(time.time() - comp_time)
+        big_time = time.time()
+        msg_bdata_post = msgpack.loads(msg_bdata)
+        print 'Big data unpacked in {0} seconds'.format(time.time() - big_time)
 
     def pickle_pack(self):
         '''
@@ -74,9 +80,17 @@ class STest(object):
         p_bdata = pickle.dumps(self.bdata)
         print 'Big data pickled in {0} seconds'.format(time.time() - big_time)
         open('/tmp/p_big_data', 'w+').write(p_bdata)
+        comp_time = time.time()
+        p_cdata_post = pickle.loads(p_cdata)
+        print 'Complex data unpickled in {0} seconds'.format(time.time() - comp_time)
+        big_time = time.time()
+        p_bdata_post = pickle.loads(p_bdata)
+        print 'Big data unpickled in {0} seconds'.format(time.time() - big_time)
+
 
     def json_pack(self):
         '''
+        Does not work
         Run the test with JSON
         '''
         comp_time = time.time()
@@ -87,6 +101,12 @@ class STest(object):
         j_bdata = json.dumps(self.bdata)
         print 'Big data JSON\'d in {0} seconds'.format(time.time() - big_time)
         open('/tmp/json_big_data', 'w+').write(j_bdata)
+        comp_time = time.time()
+        j_cdata_post = json.loads(j_cdata)
+        print 'Complex data unJSON\'d in {0} seconds'.format(time.time() - comp_time)
+        big_time = time.time()
+        j_bdata_post = json.loads(j_bdata)
+        print 'Big data unJSON\'d in {0} seconds'.format(time.time() - big_time)
 
     def yaml_pack(self):
         '''
@@ -95,11 +115,17 @@ class STest(object):
         comp_time = time.time()
         y_cdata = yaml.dump(self.cdata)
         print 'Complex data YAML\'d in {0} seconds'.format(time.time() - comp_time)
-        open('/tmp/json_complex_data', 'w+').write(y_cdata)
+        open('/tmp/yaml_complex_data', 'w+').write(y_cdata)
         big_time = time.time()
         y_bdata = yaml.dump(self.bdata)
         print 'Big data YAML\'d in {0} seconds'.format(time.time() - big_time)
-        open('/tmp/json_big_data', 'w+').write(y_bdata)
+        open('/tmp/yaml_big_data', 'w+').write(y_bdata)
+        comp_time = time.time()
+        y_cdata_post = yaml.load(y_cdata)
+        print 'Complex data unYAML\'d in {0} seconds'.format(time.time() - comp_time)
+        big_time = time.time()
+        y_bdata_post = yaml.load(y_bdata)
+        print 'Big data unYAML\'d in {0} seconds'.format(time.time() - big_time)
 
 if __name__ == '__main__':
     serial = STest({})
