@@ -20,7 +20,10 @@ def prep_base(path):
     return base64.decodestring(''.join(lines[1:-1]))
 
 def inflate_long(s, always_positive=False):
-    "turns a normalized byte string into a long-int (adapted from Crypto.Util.number)"
+    '''
+    Turns a normalized byte string into a long-int (adapted from
+    Crypto.Util.number)
+    '''
     out = 0L
     negative = 0
     if not always_positive and (len(s) > 0) and (ord(s[0]) >= 0x80):
@@ -37,7 +40,10 @@ def inflate_long(s, always_positive=False):
     return out
 
 def deflate_long(n, add_sign_padding=True):
-    "turns a long-int into a normalized byte string (adapted from Crypto.Util.number)"
+    '''
+    turns a long-int into a normalized byte string (adapted from
+    Crypto.Util.number)
+    '''
     # after much testing, this algorithm was deemed to be the fastest
     s = ''
     n = long(n)
@@ -155,7 +161,7 @@ class BER(object):
         elif (type(x) is list) or (type(x) is tuple):
             self.encode_tlv(0x30, self.encode_sequence(x))
         else:
-            raise BERException('Unknown type for encoding: %s' % repr(type(x)))
+            raise BERException('Unknown type for encoding: {0}'.format(repr(type(x))))
 
     def encode_sequence(data):
         b = BER()
