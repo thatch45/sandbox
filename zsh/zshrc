@@ -1,0 +1,34 @@
+# The following lines were added by compinstall
+
+EDITOR=vim
+
+zstyle ':completion:*' completer _complete _ignored
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*' menu select=long
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+zstyle :compinstall filename '/home/thatch/.zshrc'
+
+autoload -Uz compinit
+autoload -U colors && colors
+compinit
+# End of lines added by compinstall
+# Lines configured by zsh-newuser-install
+HISTFILE=~/.histfile
+HISTSIZE=5000
+SAVEHIST=1000
+setopt appendhistory autocd extendedglob notify
+unsetopt beep
+bindkey -e
+# End of lines configured by zsh-newuser-install
+
+autoload -Uz vcs_info
+zstyle ':vcs_info:*' enable git svn hg
+precmd() {
+    vcs_info
+}
+setopt prompt_subst
+zstyle ':vcs_info:git*' formats "%{$fg[cyan]%}%S %{$fg[green]%}%b%m%{$fg[red]%}%u%c%{$reset_color%} % "
+zstyle ':vcs_info:*' check-for-changes true
+PROMPT='%{$fg[cyan]%}%n@%m ${vcs_info_msg_0_}%{$reset_color%}%% '
+
+alias yaourt='yaourt --noconfirm'
