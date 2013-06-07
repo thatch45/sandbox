@@ -9,6 +9,11 @@ how Salt compiles and manages states can be very beneficial.
 Function Call
 =============
 
+The lowest layer of functionality in the state system is the direct state
+function call. Sate executions are executions of single state functions at
+the core, these individual functions are defined in state modules and can
+be called directly via the ``state.single`` command.
+
 Low Chunk
 =========
 
