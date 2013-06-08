@@ -17,6 +17,12 @@ be called directly via the ``state.single`` command.
 Low Chunk
 =========
 
+The low chunk is the bottom of the Salt state compiler. This is a data
+representation of a single function call. The low chunk is sent to the state
+caller and used to execute a single state function.
+
+A single low chunk can be executed manually via the ``state.low`` command.
+
 Low State
 =========
 
